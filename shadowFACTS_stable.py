@@ -1,4 +1,3 @@
-
 import os
 import pickle
 import json
@@ -13,7 +12,14 @@ from gensim import corpora, models
 # Global variable to store context
 context_history = []
 guiding_prompt = "I am a Q&A bot with knowledge from the embedded text. Based on this knowledge, "
+
+MODEL_NAME = 'C://AI_MODELS/llama2_7b_chat_uncensored.ggmlv3.q4_0.bin'
 CHUNK_SIZE = 200
+CHAT_TEMP = 0.8  # Adjust as needed
+SUMMARY_TEMP = 0.8  # Adjust as needed
+TOP_P = 0.9  #  It truncates the distribution of words to consider only the most probable words such that their cumulative probability exceeds a threshold (Top-p value). High values leading to more randomness
+TOP_K = 60 
+
 
 
 def get_text_input():
@@ -52,6 +58,8 @@ def simple_search(query, texts):
     results = [text for text in texts if query.lower() in text.lower()]
     return results
 
+
+
 def update_context(user_input, response, max_length=5):
     global context_history
     context_history.append((user_input, response))
@@ -72,7 +80,7 @@ def extract_topics():
 
 
 
-def deep_search(query, embeddings, texts, mask_percentage=0.10, top_n=5):
+def deep_search(query, embeddings, texts, mask_percentage=0.10, top_n=1):
     """Perform the "deep search" method."""
     embedder = Embed4All()
     query_embedding = embedder.embed(query)
@@ -107,6 +115,22 @@ def handle_user_input(embeddings, texts):
     else:
         return "Please start your query with 'search:' or 'search-deep:'."
 
+def display_search_results_and_summary(search_results, search_type, model):
+    """Display the actual search results and then the summary."""
+    print(f"{search_type} Results:\n" + "\n".join(search_results))
+    
+    # Summarize results
+    if search_results:
+        # Provide a more explicit prompt for summarization
+        summary_prompt = "Please summarize the following search results: " + "\n".join(search_results)
+        summary = model.generate(prompt=summary_prompt, temp=SUMMARY_TEMP)
+        summary_content = summary['content'] if isinstance(summary, dict) else summary
+        print(f"Summary of {search_type} Results:\n{summary_content}")
+        return summary_content  # return the summary for recording
+    else:
+        print(f"No results found for your {search_type.lower()} query.")
+        return None
+
 
 def main():
     # Check for existing conversation log and load it ONCE
@@ -117,9 +141,12 @@ def main():
         existing_log = []
     
     # Handle embedding.pkl file loading
+
     if os.path.exists("embedding.pkl"):
         with open("embedding.pkl", 'rb') as f:
             embeddings = pickle.load(f)
+        with open("texts.pkl", 'rb') as f:
+            texts = pickle.load(f)
         choice = input("An existing embedding was found. Do you want to start a new one or continue with the last? (Enter 'new' or 'continue'): ")
         
         if choice == 'new':
@@ -136,7 +163,7 @@ def main():
                 pickle.dump(embeddings, f)
     else:
         text = get_text_input()
-        chunks = chunk_text(text, 1000)
+        chunks = chunk_text(text, CHUNK_SIZE)
         with open("texts.pkl", 'wb') as f:
             pickle.dump(chunks, f)
         embeddings = []
@@ -144,46 +171,52 @@ def main():
         for chunk in chunks:
             embedding = embedder.embed(chunk)
             embeddings.append(embedding)
-        with open("embedding.pkl", 'wb') as f:
-            pickle.dump(embeddings, f)
-
     with open("texts.pkl", 'rb') as f:
         texts = pickle.load(f)
 
     rake = Rake()
-
     conversation_log = []
-
 
     model = GPT4All(model_name='C://AI_MODELS//llama2_7b_chat_uncensored.ggmlv3.q4_0.bin')
     with model.chat_session():
         while True:
             user_input = input("You: ")
-            
-            # Handle search-deep: prefix
+
+            summary_content = None  # Initialize summary content as None
+            search_type = None  # Initialize search type as None
+
             if user_input.lower().startswith("search-deep:"):
+                search_type = "Deep Search"
                 search_query = user_input[len("search-deep:"):].strip()
                 search_results = deep_search(search_query, embeddings, texts)
-                
-                if search_results:
-                    response_content = "\n".join(search_results)
-                    print(f"Deep Search Results:\n{response_content}")
-                else:
-                    response_content = "No deep search results found for your query."
-                    print(response_content)
+                summary_content = display_search_results_and_summary(search_results, "Deep Search", model)
+
+                # Add search results and their summary to the conversation log
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                entry = {
+                    "timestamp": timestamp,
+                    "user_input": user_input,
+                    "search_results": search_results,
+                    "summary": summary_content
+                }
+                conversation_log.append(entry)
             
-            # Handle search: prefix
             elif user_input.lower().startswith("search:"):
+                search_type = "Search"
                 search_query = user_input[len("search:"):].strip()
                 search_results = simple_search(search_query, texts)
-                
-                if search_results:
-                    response_content = "\n".join(search_results)
-                    print(f"Search Results:\n{response_content}")
-                else:
-                    response_content = "No results found for your search query."
-                    print(response_content)
-            
+                summary_content = display_search_results_and_summary(search_results, "Search", model)
+
+                # Add search results and their summary to the conversation log
+                timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                entry = {
+                    "timestamp": timestamp,
+                    "user_input": user_input,
+                    "search_results": search_results,
+                    "summary": summary_content
+                }
+                conversation_log.append(entry)
+
             else:
                 if user_input.lower() in ['exit', 'quit']:
                     break
@@ -199,7 +232,7 @@ def main():
 
                 full_prompt = guiding_prompt + context + " " + user_input
 
-                response = model.generate(prompt=full_prompt, temp=0)
+                response = model.generate(prompt=full_prompt, temp=0.5)
                 if isinstance(response, dict) and 'content' in response:
                     print(f"Chatbot: {response['content']}")
                     response_content = response['content']
