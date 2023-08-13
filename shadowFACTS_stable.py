@@ -109,23 +109,24 @@ def handle_user_input(embeddings, texts):
 
 
 def main():
-    # Check for existing conversation log and load it
+    # Check for existing conversation log and load it ONCE
     if os.path.exists("conversation_log.json"):
         with open("conversation_log.json", "r") as f:
-            conversation_log = json.load(f)
+            existing_log = json.load(f)
     else:
-        conversation_log = []
+        existing_log = []
+    
+    # Handle embedding.pkl file loading
     if os.path.exists("embedding.pkl"):
         with open("embedding.pkl", 'rb') as f:
             embeddings = pickle.load(f)
         choice = input("An existing embedding was found. Do you want to start a new one or continue with the last? (Enter 'new' or 'continue'): ")
+        
         if choice == 'new':
             text = get_text_input()
             chunks = chunk_text(text, CHUNK_SIZE)
-            
             with open("texts.pkl", 'wb') as f:
                 pickle.dump(chunks, f)
-            
             embeddings = []
             embedder = Embed4All()
             for chunk in chunks:
@@ -133,16 +134,11 @@ def main():
                 embeddings.append(embedding)
             with open("embedding.pkl", 'wb') as f:
                 pickle.dump(embeddings, f)
-        elif choice == 'continue':
-            with open("embedding.pkl", 'rb') as f:
-                embeddings = pickle.load(f)
     else:
         text = get_text_input()
         chunks = chunk_text(text, 1000)
-        
         with open("texts.pkl", 'wb') as f:
             pickle.dump(chunks, f)
-        
         embeddings = []
         embedder = Embed4All()
         for chunk in chunks:
@@ -157,6 +153,7 @@ def main():
     rake = Rake()
 
     conversation_log = []
+
 
     model = GPT4All(model_name='C://AI_MODELS//llama2_7b_chat_uncensored.ggmlv3.q4_0.bin')
     with model.chat_session():
@@ -222,8 +219,10 @@ def main():
                 }
                 conversation_log.append(entry)
 
+    # After finishing the chat session, save the current session logs to the existing logs
     with open("conversation_log.json", "w") as f:
-        json.dump(conversation_log, f, indent=4)
+        combined_logs = existing_log + conversation_log
+        json.dump(combined_logs, f, indent=4)
 
 if __name__ == "__main__":
     main()
