@@ -82,12 +82,7 @@ shadowFACTS utilizes Embed4All to create embeddings for chunks of the imported t
 
 Dynamic Prompt Generation:
 
-For standard queries (non-search ones), the bot constructs a prompt that combines a guiding principle, the most contextually relevant portions of the imported text, and the user's input. This ensures that the generated response is both grounded in the bot's foundational knowledge and relevant to the ongoing conversation.
-
----
-
-
-Sentiment analysis, powered by TextBlob, determines the emotional tone of the user's input, providing an additional layer of context.
+For standard queries (non-search ones), the bot constructs a prompt that combines a guiding principle, the most contextually relevant portions of the imported text, and the user's input. This ensures that the generated response is both grounded in the bot's foundational knowledge and relevant to the ongoing conversation. Sentiment analysis, powered by TextBlob, determines the emotional tone of the user's input, providing an additional layer of context.
 
 Setup & Persistence:
 
