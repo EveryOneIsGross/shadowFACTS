@@ -1,7 +1,7 @@
 # shadowFACTS
 ![shadowfax](https://github.com/EveryOneIsGross/shadowFACTS/assets/23621140/b1a42b05-b7f5-4cec-8c9f-db820aaaa13b)
 
-shadowFACTS is a conversational agent designed to provide contextually relevant responses based on an imported data source. shadowFACTSs name relates to how the deep-search algorithm using a euclidean vector mask of farthest related reponses before looking for similarities in a reduced vector space. Otherwise it uses standard cosine searches to add chunks of txt into the agents prompt for some on topic context. This was just a quick tool for me to chat with a .txt while I tried to understand it. Useful for chatting to some txt.
+shadowFACTS is a conversational agent designed to provide contextually relevant responses based on an imported data source. shadowFACTSs name relates to how the deep-search algorithm masks farthest related reponses before looking for similarities in a reduced vector space. Otherwise it uses standard cosine searches to add chunks of txt into the agents prompt for some on topic context. This was just a quick tool for me to chat with a .txt while I tried to understand it. Useful for chatting to some txt.
 
 ---
 
