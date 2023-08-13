@@ -68,6 +68,7 @@ def update_context(user_input, response, max_length=5):
 
 
 # Extract main topics from the conversation history
+# Currently unused
 def extract_topics():
     global context_history
     texts = [input + " " + response for input, response in context_history]
