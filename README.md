@@ -1,7 +1,7 @@
 # shadowFACTS
 ![shadowfax](https://github.com/EveryOneIsGross/shadowFACTS/assets/23621140/b1a42b05-b7f5-4cec-8c9f-db820aaaa13b)
 
-shadowFACTS is a conversational agent designed to provide contextually relevant responses based on an imported data source. shadowFACTSs name relates to the deep-search algorithm using a euclydian vector mask of farthest related reponses before looking for similarities in a reduced vector space. Otherwise it uses standard cosine searches to add chunks of txt into the agents prompt for some on topic context. This was just a quick tool for me to chat with a .txt while I tried to understand it. 
+shadowFACTS is a conversational agent designed to provide contextually relevant responses based on an imported data source. shadowFACTSs name relates to how the deep-search algorithm using a euclidean vector mask of farthest related reponses before looking for similarities in a reduced vector space. Otherwise it uses standard cosine searches to add chunks of txt into the agents prompt for some on topic context. This was just a quick tool for me to chat with a .txt while I tried to understand it. Useful for chatting to some txt.
 
 ---
 
@@ -87,9 +87,10 @@ shadowFACTS utilizes Embed4All to create embeddings for chunks of the imported t
 Dynamic Prompt Generation:
 
 For standard queries (non-search ones), the bot constructs a prompt that combines a guiding principle, the most contextually relevant portions of the imported text, and the user's input. This ensures that the generated response is both grounded in the bot's foundational knowledge and relevant to the ongoing conversation.
-Keyword Extraction & Sentiment Analysis:
 
-ShadowFACTS leverages RAKE (Rapid Automatic Keyword Extraction) to discern the key topics from user input.
+---
+
+
 Sentiment analysis, powered by TextBlob, determines the emotional tone of the user's input, providing an additional layer of context.
 
 Setup & Persistence:
