@@ -99,7 +99,12 @@ def deep_search(query, embeddings, texts, mask_percentage=0.10, top_n=1):
     # Find the closest embeddings to the query from the remaining pool
     closest_indices = np.argsort(distances[remaining_indices])[:top_n]  # Top N closest results
 
-    return [texts[remaining_indices[i]] for i in closest_indices]
+    # At the end of the function
+    min_similarity_threshold = 0.75
+    if any(val >= min_similarity_threshold for val in distances[closest_indices]):
+        return [texts[remaining_indices[i]] for i in closest_indices]
+    else:
+        return ["No close matches found."]
 
 
 
@@ -123,7 +128,7 @@ def display_search_results_and_summary(search_results, search_type, model):
     # Summarize results
     if search_results:
         # Provide a more explicit prompt for summarization
-        summary_prompt = "Please summarize the following search results: " + "\n".join(search_results)
+        summary_prompt = "Summarise the following from the provided txt: " + "\n".join(search_results)
         summary = model.generate(prompt=summary_prompt, temp=SUMMARY_TEMP)
         summary_content = summary['content'] if isinstance(summary, dict) else summary
         print(f"Summary of {search_type} Results:\n{summary_content}")
