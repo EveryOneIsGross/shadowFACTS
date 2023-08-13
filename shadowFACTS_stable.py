@@ -15,11 +15,11 @@ guiding_prompt = "I am a Q&A bot with knowledge from the embedded text. Based on
 
 MODEL_NAME = 'C://AI_MODELS/llama2_7b_chat_uncensored.ggmlv3.q4_0.bin'
 CHUNK_SIZE = 200
-CHAT_TEMP = 0.8  # Adjust as needed
-SUMMARY_TEMP = 0.8  # Adjust as needed
+CHAT_TEMP = 1  # Adjust as needed
+SUMMARY_TEMP = 0.4  # Adjust as needed
 TOP_P = 0.9  #  It truncates the distribution of words to consider only the most probable words such that their cumulative probability exceeds a threshold (Top-p value). High values leading to more randomness
 TOP_K = 60 
-
+CONVO_HISTORY_LENGTH = 2 # Number of previous user inputs to consider for context
 
 
 def get_text_input():
@@ -60,7 +60,7 @@ def simple_search(query, texts):
 
 
 
-def update_context(user_input, response, max_length=5):
+def update_context(user_input, response, max_length=CONVO_HISTORY_LENGTH):
     global context_history
     context_history.append((user_input, response))
     if len(context_history) > max_length:
