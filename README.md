@@ -76,8 +76,6 @@ Where:
 
 5. From the remaining texts in R, select the ones with the smallest distances (i.e., most relevant) to return to the user.
 
-This formal representation succinctly describes the methodology behind the "deep search" process, with each step clearly represented in mathematical terms.
-
 ---
 
 Embeddings & Similarity Measurement:
