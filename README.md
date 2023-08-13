@@ -5,8 +5,6 @@ shadowFACTS is a conversational agent designed to provide contextually relevant 
 
 ---
 
-Core Features:
-
 Text Importing:
 
 Users can seamlessly input data either by providing a .txt file or directly typing in the text. This data forms the foundational knowledge from which shadowFACTS operates.
